@@ -1,7 +1,0 @@
-[general]
-python_version = "3.10"
-image-circuit-solver/
-├── circuit_solver.py
-├── requirements.txt
-└── .streamlit/
-    └── config.toml
