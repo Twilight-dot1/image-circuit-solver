@@ -1,57 +1,63 @@
-# Image-Based Circuit Solver: General Circuit Detector with Enhanced UI
+# Image-Based Circuit Solver: Imgur-Styled Version
 # Requirements: OpenCV, Streamlit, NumPy
 
 import cv2
 import numpy as np
 import streamlit as st
 
-st.set_page_config(page_title="⚡ AI Circuit Solver", page_icon="🧠", layout="centered")
+st.set_page_config(page_title="⚡ Circuit Solver", page_icon="🧠", layout="centered")
 
 st.markdown("""
-    <style>
-    body {
-        background-color: #0f2027;
-        background-image: linear-gradient(to right, #2c5364, #203a43, #0f2027);
-        color: white;
-    }
-    .main {
-        background-color: #ffffff10;
-        padding: 2rem;
-        border-radius: 12px;
-        box-shadow: 0 0 30px rgba(0, 255, 255, 0.15);
-        color: white;
-    }
-    .stFileUploader > label {
-        font-size: 1.2rem;
-        font-weight: 600;
-        color: #00f7ff;
-    }
-    h1, h2, h3, h4 {
-        color: #ffffff;
-        text-shadow: 1px 1px 4px #000000;
-    }
-    .stButton > button {
-        background-color: #00f7ff;
-        color: #0f2027;
-        font-weight: bold;
-        border-radius: 8px;
-        padding: 0.5rem 1.5rem;
-        transition: all 0.3s ease-in-out;
-    }
-    .stButton > button:hover {
-        transform: scale(1.05);
-        background-color: #0ff;
-    }
-    </style>
+<style>
+body {
+    background-color: #18181B;
+    font-family: 'Segoe UI', sans-serif;
+    color: #E5E7EB;
+}
+
+h1, h2, h3, h4 {
+    color: #F9FAFB;
+    font-weight: 800;
+}
+
+.stFileUploader > label {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #10B981;
+}
+
+.stButton > button {
+    background: linear-gradient(to right, #22C55E, #16A34A);
+    color: white;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    font-weight: bold;
+    border-radius: 6px;
+    transition: background 0.3s ease;
+}
+
+.stButton > button:hover {
+    background: linear-gradient(to right, #16A34A, #15803D);
+    transform: scale(1.02);
+}
+
+.block-container {
+    padding-top: 3rem;
+    padding-bottom: 3rem;
+    background-color: #27272A;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+}
+</style>
 """, unsafe_allow_html=True)
 
 st.markdown("""
-# 🧠 AI-Powered Circuit Solver
-Upload a **hand-drawn** or **digital image** of a circuit with batteries and resistors.
+# 🧠 Circuit Solver
+Welcome to the AI-powered circuit detection tool.
 
-✨ This intelligent tool detects components, wires, and solves for current and voltage drops in real-time.
+💡 Upload a **hand-drawn** or **digital** circuit with basic components.
 
-📤 Just drag & drop your image below:
+📤 **Drag and drop** your image into the uploader below to get started:
 """)
 
 uploaded_file = st.file_uploader("Drop or Upload a Circuit Image", type=["jpg", "jpeg", "png"])
@@ -81,12 +87,12 @@ if uploaded_file:
             cv2.rectangle(img_resized, (x, y), (x + w, y + h), (0, 255, 0), 2)
             component_count += 1
 
-    st.image(img_resized, channels="BGR", caption="🖼️ Detected Components and Wires")
-    st.markdown(f"## 🔍 Detected Components: `{component_count}`")
+    st.image(img_resized, channels="BGR", caption="📷 Detected Components and Wires")
+    st.markdown(f"## 🔍 Components Detected: `{component_count}`")
 
     if component_count >= 2:
-        st.success("✅ Circuit identified! Please enter voltage and resistances below:")
-        voltage = st.number_input("🔋 Voltage (in Volts)", min_value=1)
+        st.success("✅ Circuit recognized! Please enter the electrical parameters:")
+        voltage = st.number_input("🔋 Voltage (V)", min_value=1)
         resistances = []
         for i in range(component_count - 1):
             r = st.number_input(f"🔧 Resistance R{i+1} (Ω)", min_value=1)
@@ -96,9 +102,9 @@ if uploaded_file:
             R_total = sum(resistances)
             current = voltage / R_total
             st.markdown(f"### 🧮 Total Resistance: `{R_total} Ω`")
-            st.markdown(f"### ⚡ Current: `{current:.2f} A`")
+            st.markdown(f"### ⚡ Current Flowing: `{current:.2f} A`")
             for i, r in enumerate(resistances):
                 v_drop = current * r
-                st.markdown(f"- Voltage Drop across R{i+1}: `{v_drop:.2f} V`")
+                st.markdown(f"- 🔋 Voltage Drop across R{i+1}: `{v_drop:.2f} V`")
     else:
-        st.warning("⚠️ Not enough components detected to solve the circuit.")
+        st.warning("⚠️ Not enough components detected to calculate the circuit.")
