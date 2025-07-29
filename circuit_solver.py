@@ -1,29 +1,55 @@
-# Image-Based Circuit Solver: Imgur-Styled Version
-# Requirements: OpenCV, Streamlit, NumPy
+# Image-Based Circuit Solver: Imgur-Styled Version + Enhanced UI
+# Requirements: OpenCV, Streamlit, NumPy, streamlit-lottie, requests
 
 import cv2
 import numpy as np
 import streamlit as st
+from streamlit_lottie import st_lottie
+import requests
 
 st.set_page_config(page_title="⚡ Circuit Solver", page_icon="🧠", layout="centered")
+
+@st.cache_data(show_spinner=False)
+def load_lottieurl(url):
+    r = requests.get(url)
+    if r.status_code != 200:
+        return None
+    return r.json()
+
+lottie_ai = load_lottieurl("https://assets9.lottiefiles.com/packages/lf20_zrqthn6o.json")
 
 st.markdown("""
 <style>
 body {
-    background-color: #18181B;
+    background: linear-gradient(270deg, #0f2027, #203a43, #2c5364);
+    background-size: 600% 600%;
+    animation: gradientBG 15s ease infinite;
     font-family: 'Segoe UI', sans-serif;
     color: #E5E7EB;
+}
+
+@keyframes gradientBG {
+    0% {background-position: 0% 50%}
+    50% {background-position: 100% 50%}
+    100% {background-position: 0% 50%}
 }
 
 h1, h2, h3, h4 {
     color: #F9FAFB;
     font-weight: 800;
+    text-shadow: 1px 1px 2px #000000;
 }
 
 .stFileUploader > label {
     font-size: 1.1rem;
     font-weight: 600;
     color: #10B981;
+    transition: all 0.3s ease-in-out;
+}
+
+.stFileUploader > label:hover {
+    color: #22c55e;
+    text-shadow: 0 0 10px #22c55e;
 }
 
 .stButton > button {
@@ -44,12 +70,14 @@ h1, h2, h3, h4 {
 .block-container {
     padding-top: 3rem;
     padding-bottom: 3rem;
-    background-color: #27272A;
+    background-color: rgba(39, 39, 42, 0.85);
     border-radius: 12px;
     box-shadow: 0 10px 25px rgba(0,0,0,0.3);
 }
 </style>
 """, unsafe_allow_html=True)
+
+st_lottie(lottie_ai, height=250, key="ai_intro")
 
 st.markdown("""
 # 🧠 Circuit Solver
@@ -65,7 +93,11 @@ uploaded_file = st.file_uploader("Drop or Upload a Circuit Image", type=["jpg", 
 if uploaded_file:
     file_bytes = np.asarray(bytearray(uploaded_file.read()), dtype=np.uint8)
     img = cv2.imdecode(file_bytes, 1)
-    img_resized = cv2.resize(img, (600, 400))
+    aspect_ratio = img.shape[1] / img.shape[0]
+    width = 600
+    height = int(width / aspect_ratio)
+    img_resized = cv2.resize(img, (width, height))
+
     gray = cv2.cvtColor(img_resized, cv2.COLOR_BGR2GRAY)
     blur = cv2.GaussianBlur(gray, (5, 5), 0)
     edges = cv2.Canny(blur, 50, 150)
