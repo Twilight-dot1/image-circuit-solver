@@ -1,14 +1,42 @@
-# Image-Based Circuit Solver: General Circuit Detector (Improved Version)
-# Requirements: OpenCV, Streamlit, NumPy
+# Image-Based Circuit Solver: General Circuit Detector with Drag & Drop UI
+# Requirements: OpenCV, Streamlit, NumPy, streamlit-dragdrop-file-uploader (for advanced features)
 
 import cv2
 import numpy as np
 import streamlit as st
+import base64
 
-st.title("🔌 Image-Based Circuit Solver (General Circuits)")
-st.write("Upload a hand-drawn or digital image of a circuit with batteries and resistors. This version attempts to detect all types of rectangular components and connection lines.")
+st.set_page_config(page_title="Circuit Solver", page_icon="🔌", layout="centered")
 
-uploaded_file = st.file_uploader("Choose a circuit image", type=["jpg", "jpeg", "png"])
+st.markdown("""
+    <style>
+    .main {
+        background-color: #f0f4f8;
+        padding: 2rem;
+        border-radius: 10px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
+    .block-container {
+        padding-top: 2rem;
+    }
+    h1, h2, h3, h4 {
+        color: #333333;
+    }
+    .stFileUploader > label {
+        font-size: 1.1rem;
+        font-weight: bold;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
+st.title("🔌 AI Circuit Solver (with Drag & Drop Upload)")
+st.markdown("""
+Upload a **hand-drawn** or **digital image** of a circuit with batteries and resistors. This AI tool will detect components and wires and simulate the circuit.
+
+💡 You can **drag and drop** the image file into the upload box below.
+""")
+
+uploaded_file = st.file_uploader("📤 Drop or Upload a Circuit Image", type=["jpg", "jpeg", "png"])
 
 if uploaded_file:
     file_bytes = np.asarray(bytearray(uploaded_file.read()), dtype=np.uint8)
@@ -36,24 +64,24 @@ if uploaded_file:
             cv2.rectangle(img_resized, (x, y), (x + w, y + h), (0, 255, 0), 2)
             component_count += 1
 
-    st.image(img_resized, channels="BGR", caption="Detected components and wires")
-    st.write(f"Detected rectangle components: **{component_count}**")
+    st.image(img_resized, channels="BGR", caption="🧠 Detected Components and Wires")
+    st.write(f"🟩 **Detected Rectangle Components:** `{component_count}`")
 
     if component_count >= 2:
-        st.success("Multiple components detected. Assuming general circuit.")
-        voltage = st.number_input("Enter Voltage of the battery (V)", min_value=1)
+        st.success("✅ Multiple components detected. Assuming general circuit.")
+        voltage = st.number_input("🔋 Enter Voltage of the battery (V)", min_value=1)
         resistances = []
         for i in range(component_count - 1):
-            r = st.number_input(f"Enter Resistance R{i+1} (Ohms)", min_value=1)
+            r = st.number_input(f"🔧 Enter Resistance R{i+1} (Ohms)", min_value=1)
             resistances.append(r)
 
         if resistances and voltage:
             R_total = sum(resistances)
             current = voltage / R_total
-            st.write(f"**Total Resistance (assuming series):** {R_total} Ω")
-            st.write(f"**Current Flowing:** {current:.2f} A")
+            st.info(f"🧮 **Total Resistance (assuming series):** `{R_total} Ω`")
+            st.info(f"⚡ **Current Flowing:** `{current:.2f} A`")
             for i, r in enumerate(resistances):
                 v_drop = current * r
-                st.write(f"Voltage drop across R{i+1}: {v_drop:.2f} V")
+                st.write(f"🔌 Voltage drop across R{i+1}: `{v_drop:.2f} V`")
     else:
-        st.warning("Not enough components detected to solve the circuit.")
+        st.warning("⚠️ Not enough components detected to simulate the circuit.")
